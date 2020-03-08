@@ -2,32 +2,50 @@ package vmhack.domain.circuit
 
 trait Pin {
   type B <: Bits
-  def getName: String
-  def setBits(bits: B): Pin
-  def getBits(): Option[B]
-  def copyBits(other: Pin): Either[PinException, Pin]
-  def clear(): Pin
+  val id: Pin.Id
+  val name: Pin.Name
+  def bits(bitsOnPins: Pin.BitMap): Option[B]
+  def setBits(bitsOnPins: Pin.BitMap, b: B): Option[Pin.BitMap]
+  def copyBits(other: Pin, bitsOnPins: Pin.BitMap): Either[PinException, Pin.BitMap]
 }
 trait PinException
 object Pin {
-  case class PinImpl[BB <: Bits](name: String, bits: Option[BB]) extends Pin {
-
+  case class PinImpl[BB <: Bits](id: Id, name: Name) extends Pin {
     type B = BB
-    override def getName = name
-    override def setBits(bits: BB): PinImpl[BB] = PinImpl[BB](name, Some(bits))
-    override def getBits(): Option[BB] = bits
-    override def copyBits(other: Pin): Either[PinException, Pin] =
-      other match {
-        case PinImpl(_, Some(value: BB)) => Right(setBits(value))
-        case PinImpl(_, None) => Left(OtherPinIsNull)
-        case _ => Left(PinTypeMismatch)
+    override def bits(bitsOnPins: Pin.BitMap): Option[BB] = {
+      bitsOnPins.get(id) match {
+        case Some(value: BB) => Some(value)
+        case None            => None
       }
-    override def clear(): Pin = PinImpl[BB](name, None)
+    }
+    override def setBits(bitsOnPins: Pin.BitMap, b: B): Option[Pin.BitMap] = {
+      if (bitsOnPins.contains(id)) {
+        None
+      } else {
+        Some(bitsOnPins.+((id, b)))
+      }
+    }
+    override def copyBits(other: Pin, bitsOnPins: Pin.BitMap): Either[PinException, Pin.BitMap] = {
+      other match {
+        case otherBB: PinImpl[BB] => for {
+          a <- this.bits(bitsOnPins).toRight(BitsNotFound(this))
+          res <- otherBB.setBits(bitsOnPins, a).toRight(BitsAlreadyAssigned(this))
+        } yield res
+        case _ => Left(Pin.PinTypeMismatch(this, other))
+      }
+    }
   }
-  def apply[B <: Bits](name: String): Pin = PinImpl[B](name, None)
+  type Id = Int
+  type Name = String
+  type BitMap = Map[Id, Bits]
+  def emptyBitMap: BitMap  = Map.empty
+  def apply[B <: Bits](id: Id, name: String): PinImpl[B] = PinImpl[B](id, name)
 
   case object OtherPinIsNull extends PinException
-  case object PinTypeMismatch extends PinException
+  case class PinTypeMismatch(value: Pin, other: Pin) extends PinException
+  case class BitsNotFound(pin: Pin) extends PinException
+  case class BitsAlreadyAssigned(pin: Pin) extends PinException
+
 
   type Pin1 = PinImpl[Bit1]
 }

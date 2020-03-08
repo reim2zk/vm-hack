@@ -1,4 +1,6 @@
-package vmhack.domain.circuit
+package vmhack.domain.mutable.circuit
+
+import vmhack.domain.mutable.circuit
 
 case class NandGate(id: Gate.GateId, a: Pin.Pin1, b: Pin.Pin1, out: Pin.Pin1) extends Gate {
   override def ins: Seq[Pin] = Seq(a, b)

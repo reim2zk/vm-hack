@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/vm-hack-backend_8721.iml" filepath="$PROJECT_DIR$/.idea/modules/vm-hack-backend_8721.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/vm-hack-backend_8721-build.iml" filepath="$PROJECT_DIR$/.idea/modules/vm-hack-backend_8721-build.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/vm-hack-backend.iml" filepath="$PROJECT_DIR$/.idea/modules/vm-hack-backend.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/vm-hack-backend-build.iml" filepath="$PROJECT_DIR$/.idea/modules/vm-hack-backend-build.iml" />
     </modules>
   </component>
 </project>
